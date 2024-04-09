@@ -1,3 +1,4 @@
+import model.SubTask;
 import service.TaskManager;
 import model.*;
 
@@ -15,14 +16,14 @@ public class Main {
         Epic epic = taskManager.createEpic(new Epic("Новый эпик",
                 "Описание нового эпика", Status.NEW));
         SubTask subTask = taskManager.createSubTask(new SubTask("Новая подзадача",
-                "Описание подазадачи", Status.DONE, epic));
+                "Описание подазадачи", Status.DONE, epic.getId()));
         SubTask subTask2 = taskManager.createSubTask(new SubTask("Новая подзадача2",
-                "Описание подазадачи2", Status.NEW, epic));
+                "Описание подазадачи2", Status.NEW, epic.getId()));
 
         Epic epic2 = taskManager.createEpic(new Epic("Новый эпик2",
                 "Описание нового эпика", Status.NEW));
         SubTask subTask3 = taskManager.createSubTask(new SubTask("Новая подзадача3",
-                "Описание подазадачи", Status.IN_PROGRESS, epic2));
+                "Описание подазадачи", Status.IN_PROGRESS, epic2.getId()));
 
         System.out.println(taskManager.getAllEpics() + "\n" + taskManager.getAllTasks() + "\n" +
                 taskManager.getAllSubTasks());
