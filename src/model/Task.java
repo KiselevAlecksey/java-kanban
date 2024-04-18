@@ -1,7 +1,5 @@
 package model;
 
-import java.util.Objects;
-
 public class Task {
     private String name;
     private Integer taskId;
@@ -9,6 +7,13 @@ public class Task {
     protected Status status;
 
     public Task(String taskName, String description, Status status) {
+        this.name = taskName;
+        this.description = description;
+        this.status = status;
+    }
+
+    public Task(Integer taskId, String taskName, String description, Status status) {
+        this.taskId = taskId;
         this.name = taskName;
         this.description = description;
         this.status = status;
@@ -46,8 +51,6 @@ public class Task {
         this.description = description;
     }
 
-
-
     @Override
     public String toString() {
         return "Task{" +
@@ -61,14 +64,13 @@ public class Task {
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        Task task = (Task) object;
-        return Objects.equals(name, task.name) && Objects.equals(taskId, task.taskId) &&
-                Objects.equals(description, task.description) && status == task.status;
+        if (!(object instanceof Task task)) return false;
+
+        return taskId == task.taskId;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, taskId, description, status);
+        return taskId;
     }
 }

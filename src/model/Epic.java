@@ -11,30 +11,21 @@ public class Epic extends Task {
 
     }
 
+    public Epic(Integer taskId, String taskName, String description, Status status) {
+        super(taskId, taskName, description, status);
+    }
+
     public ArrayList<Integer> getSubTasksId() {
-        ArrayList<Integer> list = new ArrayList<>(subTasksId);
+        ArrayList<Integer> list = subTasksId;
         return list;
     }
 
-    public void addSubTaskId(SubTask subTask) {
-        subTasksId.add(subTask.getId());
+    public void addSubTaskId(Integer id) {
+        subTasksId.add(id);
     }
 
     public void removeSubTaskById(Integer id) {
         subTasksId.remove(id);
     }
 
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        if (!super.equals(object)) return false;
-        Epic epic = (Epic) object;
-        return Objects.equals(subTasksId, epic.subTasksId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), subTasksId);
-    }
 }
