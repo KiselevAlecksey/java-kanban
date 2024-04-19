@@ -69,6 +69,6 @@ public class Main {
         taskManager.getSubTaskById(subTaskSave2.getId());
         taskManager.getSubTaskById(subTaskSave3.getId());
 
-        taskManager.printHistory();
+        System.out.println(taskManager.getHistory());
     }
 }

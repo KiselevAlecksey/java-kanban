@@ -45,10 +45,11 @@ public interface TaskManager {
 
     void removeByEpicId(int epicId);
 
-    List<Integer> getSubTasksEpic(Epic epic);
+    List<SubTask> getSubTasksEpic(Epic epic);
 
     void updateStatusEpic(Epic epic);
 
     void printHistory();
 
+    List<Task> getHistory();
 }

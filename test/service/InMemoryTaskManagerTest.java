@@ -155,7 +155,6 @@ class InMemoryTaskManagerTest {
     @Test
     @DisplayName("должен вернуть список задач")
     void shouldGetListTasks() {
-
         final int idTask = task.getId();
         final Task taskSaved = taskManager.getTaskById(idTask);
 
@@ -166,7 +165,7 @@ class InMemoryTaskManagerTest {
 
         assertNotNull(tasks, "Задачи не возвращаются.");
         assertEquals(1, tasks.size(), "Неверное количество задач.");
-        assertEqualsTask(task, tasks.get(0), "Задачи не совпадают.");
+        assertEqualsTask(task, tasks.getFirst(), "Задачи не совпадают.");
     }
 
     private static void assertEqualsTask(Task expected, Task actual, String message) {

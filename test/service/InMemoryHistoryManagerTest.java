@@ -43,11 +43,11 @@ class InMemoryHistoryManagerTest {
             "при заполнении удалять значение с индексом 0, добавлять с индексом 9")
     void shouldSaveCorrectTasks() {
         for (int i = 0; i < count; i++) {
-            task = new Task("Новая задача" + i, "Описание" + i, Status.NEW);
+            task = new Task(i,"Новая задача" + i, "Описание" + i, Status.NEW);
             historyManager.add(task);
         }
-        Task task = new Task("Новая задача2", "Описание2", Status.NEW);
-        Task task2 = new Task("Новая задача11", "Описание11", Status.NEW);
+        Task task = new Task(2,"Новая задача2", "Описание2", Status.NEW);
+        Task task2 = new Task(11,"Новая задача11", "Описание11", Status.NEW);
         List<Task> tasks = historyManager.getHistory();
 
         assertEqualsTask(task, tasks.get(0), "задачи не совпадают");
