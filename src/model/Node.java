@@ -1,6 +1,6 @@
 package model;
 
-public final class Node<Task> {
+public final class Node<T> {
     Task value;
     Node<Task> next;
     Node<Task> prev;
