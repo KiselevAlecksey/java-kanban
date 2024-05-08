@@ -8,10 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InMemoryHistoryManager implements HistoryManager{
+public class InMemoryHistoryManager implements HistoryManager {
     private final LinkedListTasks<Task> linkedListTasks = new LinkedListTasks();
     private final Map<Integer, Node<Task>> history = new HashMap<>();
-
 
     @Override
     public Task add(Task task) {
@@ -46,7 +45,7 @@ public class InMemoryHistoryManager implements HistoryManager{
         return id;
     }
 
-    private static class LinkedListTasks<Task> {
+    private static class LinkedListTasks<T> {
 
         private int size = 0;
         private Node<Task> first;
@@ -60,17 +59,18 @@ public class InMemoryHistoryManager implements HistoryManager{
             final Node<Task> l = last;
             final Node<Task> newNode = new Node<>(l, task, null);
             last = newNode;
-            if (l == null)
+            if (l == null) {
                 first = newNode;
-            else
+            } else {
                 l.setNext(newNode);
+            }
+
             size++;
         }
 
         public List<Task> getTasks() {
             List<Task> list = new ArrayList<>();
             Node<Task> node = first;
-
             while(node != null) {
                 list.add(node.getValue());
                 node = node.getNext();
