@@ -1,6 +1,9 @@
+import model.Epic;
+import model.Status;
 import model.SubTask;
-import service.*;
-import model.*;
+import model.Task;
+import service.Managers;
+import service.TaskManager;
 
 public class Main {
 
@@ -69,6 +72,6 @@ public class Main {
         taskManager.getSubTaskById(subTaskSave2.getId());
         taskManager.getSubTaskById(subTaskSave3.getId());
 
-        System.out.println(taskManager.getHistory());
+        taskManager.printHistory();
     }
 }

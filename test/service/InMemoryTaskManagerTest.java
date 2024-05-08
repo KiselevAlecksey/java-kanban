@@ -4,21 +4,20 @@ import model.Epic;
 import model.Status;
 import model.SubTask;
 import model.Task;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("менеджер задач")
 class InMemoryTaskManagerTest {
 
     TaskManager taskManager;
+    HistoryManager historyManager;
     Task task;
     Epic epic;
     SubTask subTask;
@@ -28,6 +27,7 @@ class InMemoryTaskManagerTest {
     @BeforeEach
     void init() {
         taskManager = Managers.getDefault();
+        historyManager = Managers.getDefaultHistory();
         task = taskManager.createTask(new Task("Новая задача", "Описание", Status.NEW));
         epic = taskManager.createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
         subTask = taskManager.createSubTask(new SubTask("Новая задача",
@@ -47,7 +47,7 @@ class InMemoryTaskManagerTest {
     @Test
     @DisplayName("должен вернуть пустой список задач")
     void shouldRemoveTasksLists() {
-        ArrayList<Task> list = new ArrayList<>();
+        List<Task> list = new ArrayList<>();
 
         taskManager.removeTasks();
         taskManager.removeSubTasks();
@@ -173,6 +173,22 @@ class InMemoryTaskManagerTest {
         assertEquals(expected.getName(), actual.getName(), message + ", name");
         assertEquals(expected.getDescription(), actual.getDescription(), message + ", description");
         assertEquals(expected.getStatus(), actual.getStatus(), message + ", status");
+    }
+
+    @Test
+    @DisplayName("должен вернуть пустую задачу истории")
+    void shouldDeleteIdSubTasksFromHistory() {
+        Task taskNull = null;
+        int id = subTask.getId();
+
+        taskManager.removeBySubTaskId(subTask.getId());
+
+        for (Task task : taskManager.getHistory()) {
+            if (id == task.getId()) {
+                taskNull = task;
+            }
+        }
+        assertNull(taskNull, "Задача не удалена");
     }
 
 }
