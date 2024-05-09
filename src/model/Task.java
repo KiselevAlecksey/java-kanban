@@ -19,6 +19,13 @@ public class Task {
         this.status = status;
     }
 
+    public Task(Task task) {
+        this.taskId = task.taskId;
+        this.name = task.name;
+        this.description = task.description;
+        this.status = task.status;
+    }
+
     public void setId(Integer id) {
         taskId = id;
     }
