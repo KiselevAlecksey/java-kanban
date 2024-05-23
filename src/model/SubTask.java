@@ -13,26 +13,12 @@ public class SubTask extends Task {
         this.epicId = epicId;
     }
 
-    public SubTask(Integer taskId, TypeTask type, String taskName, Status status, String description, Integer epicId) {
-        super(taskId, type, taskName, status, description, epicId);
-    }
-
-    @Override
-    public Integer getEpicId() {
-        return epicId;
+    public int getEpicId() {
+            return epicId;
     }
 
     public void setEpic(Integer epic) {
         this.epicId = epic;
     }
 
-    @Override
-    public void setType(TypeTask type) {
-        this.type = TypeTask.SUBTASK;
-    }
-
-    @Override
-    public TypeTask getType() {
-        return TypeTask.SUBTASK;
-    }
 }

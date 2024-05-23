@@ -4,7 +4,6 @@ import model.Epic;
 import model.SubTask;
 import model.Task;
 
-import java.nio.file.Path;
 import java.util.List;
 
 public interface TaskManager {
@@ -44,7 +43,7 @@ public interface TaskManager {
 
     void updateEpic(Epic epic);
 
-    Epic removeByEpicId(int epicId);
+    void removeByEpicId(int epicId);
 
     List<SubTask> getSubTasksEpic(Epic epic);
 
@@ -53,12 +52,4 @@ public interface TaskManager {
     void printHistory();
 
     List<Task> getHistory();
-
-    Path getPath();
-
-    void printTasks();
-
-    void printEpics();
-
-    void printSubTasks();
 }

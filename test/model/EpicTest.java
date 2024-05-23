@@ -8,7 +8,9 @@ import service.TaskManager;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Эпик")
 class EpicTest {
@@ -56,7 +58,7 @@ class EpicTest {
     @Test
     @DisplayName("должен удалять подзадачу по id")
     void shouldRemoveSubtask() {
-        epic.removeIdSubTask(subTask.getId());
+        epic.removeSubTaskById(subTask.getId());
         List<Integer> list = epic.getSubTasksId();
         assertEquals(subTaskCount, list.size(), "должны совпадать");
     }

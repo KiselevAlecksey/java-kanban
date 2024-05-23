@@ -1,14 +1,12 @@
-package service.inmemorymanager;
+package service;
 
 import model.Node;
 import model.Task;
-import service.HistoryManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 public class InMemoryHistoryManager implements HistoryManager {
     private final LinkedListTasks<Task> linkedListTasks = new LinkedListTasks();
@@ -16,9 +14,8 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public Task add(Task task) {
-
         if (task == null) {
-            throw new NotFoundException("Задача не найдена: " + null);
+            return null;
         }
 
         Node<Task> node = history.get(task.getId());
@@ -82,7 +79,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             return list;
         }
 
-        public void removeNode(Node<Task> node) {
+        public Node<Task> removeNode(Node<Task> node) {
             Node<Task> next = node.getNext();
             Node<Task> prev = node.getPrev();
 
@@ -90,7 +87,7 @@ public class InMemoryHistoryManager implements HistoryManager {
                 first = null;
                 last = null;
                 size--;
-                return;
+                return node;
             }
 
             if ((next != null) && (prev != null)) {
@@ -109,6 +106,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             }
 
             size--;
+            return node;
         }
 
     }

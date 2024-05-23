@@ -5,8 +5,6 @@ public class Task {
     private Integer taskId;
     private String description;
     protected Status status;
-    protected TypeTask type;
-    private Integer epicId;
 
     public Task(String taskName, String description, Status status) {
         this.name = taskName;
@@ -19,15 +17,6 @@ public class Task {
         this.name = taskName;
         this.description = description;
         this.status = status;
-    }
-
-    public Task(Integer taskId, TypeTask type, String taskName, Status status, String description, Integer epicId) {
-        this.taskId = taskId;
-        this.type = type;
-        this.name = taskName;
-        this.description = description;
-        this.status = status;
-        this.epicId = epicId;
     }
 
     public Task(Task task) {
@@ -69,16 +58,14 @@ public class Task {
         this.description = description;
     }
 
-    public TypeTask getType() {
-        return TypeTask.TASK;
-    }
-
-    public void setType(TypeTask type) {
-        this.type = TypeTask.TASK;
-    }
-
-    public Integer getEpicId() {
-        return null;
+    @Override
+    public String toString() {
+        return "Task{" +
+                "taskName='" + name + '\'' +
+                ", taskId=" + taskId +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                '}';
     }
 
     @Override
@@ -92,17 +79,5 @@ public class Task {
     @Override
     public int hashCode() {
         return taskId;
-    }
-
-    @Override
-    public String toString() {
-        return "Task{" +
-                "name='" + name + '\'' +
-                ", taskId=" + taskId +
-                ", description='" + description + '\'' +
-                ", status=" + status +
-                ", type=" + type +
-                ", epicId=" + epicId +
-                '}';
     }
 }
