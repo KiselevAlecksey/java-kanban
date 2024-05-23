@@ -12,11 +12,11 @@ public class Task {
         this.status = status;
     }
 
-    public Task(Integer taskId, String taskName, String description, Status status) {
+    public Task(Integer taskId, String taskName, Status status, String description) {
         this.taskId = taskId;
         this.name = taskName;
-        this.description = description;
         this.status = status;
+        this.description = description;
     }
 
     public Task(Task task) {
@@ -58,14 +58,12 @@ public class Task {
         this.description = description;
     }
 
-    @Override
-    public String toString() {
-        return "Task{" +
-                "taskName='" + name + '\'' +
-                ", taskId=" + taskId +
-                ", description='" + description + '\'' +
-                ", status=" + status +
-                '}';
+    public TypeTask getType() {
+        return TypeTask.TASK;
+    }
+
+    public Integer getEpicId() {
+        return null;
     }
 
     @Override
@@ -79,5 +77,17 @@ public class Task {
     @Override
     public int hashCode() {
         return taskId;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "name='" + name + '\'' +
+                ", taskId=" + taskId +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", type=" + getType() +
+                ", epicId=" + getEpicId() +
+                '}';
     }
 }

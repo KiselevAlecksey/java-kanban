@@ -11,8 +11,8 @@ public class Epic extends Task {
 
     }
 
-    public Epic(Integer taskId, String taskName, String description, Status status) {
-        super(taskId, taskName, description, status);
+    public Epic(Integer taskId, String taskName, Status status, String description) {
+        super(taskId, taskName, status, description);
     }
 
     public List<Integer> getSubTasksId() {
@@ -20,11 +20,21 @@ public class Epic extends Task {
         return list;
     }
 
+    @Override
+    public Integer getEpicId() {
+        return null;
+    }
+
+    @Override
+    public TypeTask getType() {
+        return TypeTask.EPIC;
+    }
+
     public void addSubTaskId(Integer id) {
         subTasksId.add(id);
     }
 
-    public void removeSubTaskById(Integer id) {
+    public void removeIdSubTask(Integer id) {
         subTasksId.remove(id);
     }
 

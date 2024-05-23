@@ -1,10 +1,13 @@
-package service;
+package service.inmemorymanager;
 
 import model.Status;
 import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import service.HistoryManager;
+import service.Managers;
+import service.TaskManager;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -32,10 +35,10 @@ class InMemoryHistoryManagerTest {
         taskManager = Managers.getDefault();
         list = new ArrayList<>();
         task = new Task("Новая задача", "Описание", Status.NEW);
-        int countDelete = 0;
-        int startId = 0;
-        int midId;
-        int endId;
+        countDelete = 0;
+        startId = 0;
+        midId = 0;
+        endId = 0;
     }
 
 
@@ -54,13 +57,13 @@ class InMemoryHistoryManagerTest {
         LinkedList<Task> uniqueTasks = new LinkedList<>();
 
         for (int i = 0; i < count; i++) {
-            task = new Task(i,"Новая задача" + i, "Описание" + i, Status.NEW);
+            task = new Task(i, "Новая задача" + i, Status.NEW, "Описание" + i);
             historyManager.add(task);
             uniqueTasks.add(task);
         }
 
         for (int i = 0; i < count; i++) {
-            task = new Task(i,"Новая задача" + i, "Описание" + i, Status.NEW);
+            task = new Task(i, "Новая задача" + i, Status.NEW, "Описание" + i);
             historyManager.add(task);
         }
 
@@ -86,7 +89,7 @@ class InMemoryHistoryManagerTest {
     void shouldDeleteHistoryTask() {
 
         for (int i = 1; i < count + 1; i++) {
-            task = new Task(i,"Новая задача" + i, "Описание" + i, Status.NEW);
+            task = new Task(i, "Новая задача" + i, Status.NEW, "Описание" + i);
             historyManager.add(task);
         }
 
@@ -94,18 +97,18 @@ class InMemoryHistoryManagerTest {
 
         historyManager.remove(startId);
         updateList();
-        Task task1 = new Task(countDelete,"Новая задача" + countDelete,
-                "Описание" + countDelete, Status.NEW);
+        Task task1 = new Task(countDelete, "Новая задача" + countDelete, Status.NEW,
+                "Описание" + countDelete);
 
         historyManager.remove(midId);
         updateList();
         Task task7 = new Task(midId + countDelete,"Новая задача" + (midId + countDelete),
-                "Описание" + (midId + countDelete), Status.NEW);
+                Status.NEW, "Описание" + (midId + countDelete));
 
         historyManager.remove(endId);
         updateList();
         Task task12 = new Task(endId + countDelete,"Новая задача" + (endId + countDelete),
-                "Описание" + (endId + countDelete), Status.NEW);
+                Status.NEW, "Описание" + (endId + countDelete));
 
         assertEqualsTask(task1, list.get(startId), "должны совпадать");
         assertEqualsTask(task7, list.get(midId), "должны совпадать");
