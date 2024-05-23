@@ -1,4 +1,4 @@
-package service;
+package service.inmemorymanager;
 
 import model.Epic;
 import model.Status;
@@ -7,6 +7,9 @@ import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import service.HistoryManager;
+import service.Managers;
+import service.TaskManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,25 +52,44 @@ class InMemoryTaskManagerTest {
     void shouldRemoveTasksLists() {
         List<Task> list = new ArrayList<>();
 
+        NotFoundException thrown = assertThrows(NotFoundException.class, () -> {
+            taskManager.removeSubTasks();
+        });
+
         taskManager.removeTasks();
-        taskManager.removeSubTasks();
         taskManager.removeEpics();
 
         assertEquals(list, taskManager.getAllTasks(), "Список не пустой.");
-        assertEquals(list, taskManager.getAllSubTasks(), "Список не пустой.");
+        assertEquals("Подзадача не найдена у эпика: " + epic.getId(),
+                thrown.getMessage(), "Список не пустой.");
         assertEquals(list, taskManager.getAllEpics(), "Список не пустой.");
     }
 
     @Test
     @DisplayName("должен вернуть пустую задачу")
     void shouldRemoveTasksById() {
-        taskManager.removeByTaskId(task.getId());
-        taskManager.removeBySubTaskId(subTask.getId());
-        taskManager.removeByEpicId(epic.getId());
 
-        assertNull(taskManager.getTaskById(task.getId()), "Задача не удалена.");
-        assertNull(taskManager.getSubTaskById(subTask.getId()), "Задача не удалена.");
-        assertNull(taskManager.getEpicById(epic.getId()), "Задача не удалена.");
+        int id = task.getId();
+        taskManager.removeByTaskId(task.getId());
+        NotFoundException thrown = assertThrows(NotFoundException.class, () -> {
+            taskManager.removeByTaskId(task.getId());
+        });
+        assertEquals("Задача не найдена: " + id, thrown.getMessage(), "Задача не удалена.");
+
+        id = subTask.getId();
+        taskManager.removeBySubTaskId(subTask.getId());
+        thrown = assertThrows(NotFoundException.class, () -> {
+            taskManager.removeBySubTaskId(subTask.getId());
+        });
+        assertEquals("Подзадача не найдена: " + id, thrown.getMessage(), "Задача не удалена.");
+
+        id = epic.getId();
+        taskManager.removeByEpicId(epic.getId());
+        thrown = assertThrows(NotFoundException.class, () -> {
+            taskManager.removeByEpicId(epic.getId());
+        });
+        assertEquals("Эпик не найден: " + id, thrown.getMessage(), "Задача не удалена.");
+
     }
 
 
@@ -147,7 +169,12 @@ class InMemoryTaskManagerTest {
         SubTask subTaskUpdated = new SubTask(subTask.getId(), name,
                 subTask.getDescription(), Status.DONE, subTask.getId());
 
-        assertNull(taskManager.updateSubTask(subTaskUpdated), "эпик существует.");
+        NotFoundException thrown = assertThrows(NotFoundException.class, () -> {
+            taskManager.updateSubTask(subTaskUpdated);
+        });
+
+        assertEquals("Эпик не найден: " + subTask.getId(), thrown.getMessage(),
+                "исключения не совпадают");
         assertEquals(name, subTaskUpdated.getName(), "Имя не совпадает.");
         assertEquals(Status.DONE, subTaskUpdated.getStatus(), "Статус не совпадает.");
     }
@@ -176,12 +203,17 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    @DisplayName("должен вернуть пустую задачу истории")
+    @DisplayName("должен вернуть пустую задачу из истории")
     void shouldDeleteIdSubTasksFromHistory() {
         Task taskNull = null;
         int id = subTask.getId();
 
-        taskManager.removeBySubTaskId(subTask.getId());
+        taskManager.removeBySubTaskId(id);
+        NotFoundException thrown = assertThrows(NotFoundException.class, () -> {
+            taskManager.removeBySubTaskId(id);
+        });
+
+        assertEquals("Подзадача не найдена: " + id, thrown.getMessage(), "Задача не удалена.");
 
         for (Task task : taskManager.getHistory()) {
             if (id == task.getId()) {

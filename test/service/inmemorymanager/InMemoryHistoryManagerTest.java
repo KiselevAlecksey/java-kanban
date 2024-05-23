@@ -1,10 +1,13 @@
-package service;
+package service.inmemorymanager;
 
 import model.Status;
 import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import service.HistoryManager;
+import service.Managers;
+import service.TaskManager;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -32,10 +35,10 @@ class InMemoryHistoryManagerTest {
         taskManager = Managers.getDefault();
         list = new ArrayList<>();
         task = new Task("Новая задача", "Описание", Status.NEW);
-        int countDelete = 0;
-        int startId = 0;
-        int midId;
-        int endId;
+        countDelete = 0;
+        startId = 0;
+        midId = 0;
+        endId = 0;
     }
 
 

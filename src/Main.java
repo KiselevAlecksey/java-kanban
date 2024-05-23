@@ -4,12 +4,43 @@ import model.SubTask;
 import model.Task;
 import service.Managers;
 import service.TaskManager;
+import service.infilemanager.FileBackedTaskManager;
+
+import java.nio.file.Path;
 
 public class Main {
 
     public static void main(String[] args) {
         System.out.println("Поехали!");
         TaskManager taskManager = Managers.getDefault();
+        Path path = taskManager.getPath();
+        taskManager = FileBackedTaskManager.loadFromFile(path);
+
+        Epic preEpic;
+
+        for (int i = 0; i < 10; i++) {
+            taskManager.createTask(new Task("Новая задача" + i,
+                    "Описание" + i, Status.NEW));
+        }
+
+        for (int i = 0; i < 5; i++) {
+            preEpic = taskManager.createEpic(new Epic("Новый эпик" + i,
+                    "Описание" + i, Status.NEW));
+            for (int j = 0; j < 2; j++) {
+                taskManager.createSubTask(new SubTask("Новая подзадача" + i + j,
+                        "Описание" + i + j, Status.NEW, preEpic.getId()));
+            }
+        }
+
+        taskManager.printTasks();
+        taskManager.printEpics();
+        taskManager.printSubTasks();
+
+        taskManager.removeTasks();
+        taskManager.removeEpics();
+        taskManager.removeSubTasks();
+
+        System.out.println();
 
         Task task1 = taskManager.createTask(new Task("Новая задача",
                 "Описание", Status.NEW));
@@ -44,7 +75,8 @@ public class Main {
         System.out.println();
 
         taskManager.removeByTaskId(task1.getId());
-        taskManager.removeByEpicId(epic.getId());
+
+        System.out.println("удаление эпика" + taskManager.removeByEpicId(epic.getId()));
 
         System.out.println(taskManager.getAllEpics() + "\n" + taskManager.getAllTasks() + "\n" +
                 taskManager.getAllSubTasks() + "\n");
@@ -73,5 +105,6 @@ public class Main {
         taskManager.getSubTaskById(subTaskSave3.getId());
 
         taskManager.printHistory();
+
     }
 }
