@@ -1,7 +1,7 @@
 package service;
 
 import model.Epic;
-import model.SubTask;
+import model.Subtask;
 import model.Task;
 
 import java.nio.file.Path;
@@ -22,17 +22,17 @@ public interface TaskManager {
 
     void removeByTaskId(int taskId);
 
-    List<SubTask> getAllSubTasks();
+    List<Subtask> getAllSubtasks();
 
-    void removeSubTasks();
+    void removeSubtasks();
 
-    SubTask getSubTaskById(int id);
+    Subtask getSubtaskById(int id);
 
-    SubTask createSubTask(SubTask task);
+    Subtask createSubtask(Subtask task);
 
-    SubTask updateSubTask(SubTask task);
+    Subtask updateSubtask(Subtask task);
 
-    void removeBySubTaskId(int subTaskId);
+    void removeBySubTaskId(int subtaskId);
 
     List<Epic> getAllEpics();
 
@@ -46,9 +46,11 @@ public interface TaskManager {
 
     Epic removeByEpicId(int epicId);
 
-    List<SubTask> getSubTasksEpic(Epic epic);
+    List<Subtask> getEpicSubtasks(Epic epic);
 
     void updateStatusEpic(Epic epic);
+
+    List<Task> getPrioritizedTasks();
 
     void printHistory();
 
@@ -60,5 +62,5 @@ public interface TaskManager {
 
     void printEpics();
 
-    void printSubTasks();
+    void printSubtasks();
 }

@@ -1,5 +1,6 @@
 package service.infilemanager;
 
+import exception.ManagerIOException;
 import model.*;
 import service.HistoryManager;
 import service.TaskManager;
@@ -9,6 +10,8 @@ import service.inmemorymanager.InMemoryTaskManager;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +51,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         super.createTask(task);
 
         save();
+
         return task;
     }
 
@@ -64,29 +68,31 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public void removeSubTasks() {
-        super.removeSubTasks();
+    public void removeSubtasks() {
+        super.removeSubtasks();
         save();
     }
 
     @Override
-    public SubTask createSubTask(SubTask task) {
-        super.createSubTask(task);
+    public Subtask createSubtask(Subtask task) {
+        super.createSubtask(task);
 
         save();
+
         return task;
     }
 
     @Override
-    public SubTask updateSubTask(SubTask task) {
-        super.updateSubTask(task);
+    public Subtask updateSubtask(Subtask task) {
+        super.updateSubtask(task);
         save();
+
         return task;
     }
 
     @Override
-    public void removeBySubTaskId(int subTaskId) {
-        super.removeBySubTaskId(subTaskId);
+    public void removeBySubTaskId(int subtaskId) {
+        super.removeBySubTaskId(subtaskId);
         save();
     }
 
@@ -101,6 +107,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         super.createEpic(epic);
 
         save();
+
         return epic;
     }
 
@@ -115,6 +122,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         Epic epic = getEpicById(epicId);
         super.removeByEpicId(epicId);
         save();
+
         return epic;
     }
 
@@ -124,10 +132,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         save();
     }
 
+
     public static FileBackedTaskManager loadFromFile(Path path) {
-        FileBackedTaskManager manager = new FileBackedTaskManager(path);
-        manager.loadFromFile();
-        return manager;
+        try {
+            FileBackedTaskManager manager = new FileBackedTaskManager(path);
+            manager.loadFromFile();
+            return manager;
+        } catch (ManagerIOException exception) {
+            throw new ManagerIOException("Ошибка загрузки", exception);
+        }
     }
 
     private void save() {
@@ -135,13 +148,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         try (BufferedWriter bufferedWriter = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(path.toString(), false), StandardCharsets.UTF_8))) {
 
-            listSize = tasks.size() + subTasks.size() + epics.size();
+            listSize = tasks.size() + subtasks.size() + epics.size();
             List<Task> list = new ArrayList<>(listSize);
 
-            bufferedWriter.write("id,type,name,status,description,epic\n");
+            bufferedWriter.write("id,type,name,status,description,epic,startTime,duration\n");
             list.addAll(tasks.values());
             list.addAll(epics.values());
-            list.addAll(subTasks.values());
+            list.addAll(subtasks.values());
 
             for (Task task : list) {
                 bufferedWriter.write(toStringInFile(task) + "\n");
@@ -149,6 +162,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
         } catch (IOException exception) {
             throw new RuntimeException("Ошибка в файле: " + path.getFileName(), exception);
+        } catch (ManagerIOException exception) {
+            throw new ManagerIOException("Ошибка сохранения в файл: " + path.getFileName(), exception);
         }
     }
 
@@ -171,7 +186,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             }
 
         } catch (IOException exception) {
-            throw new RuntimeException("Ошибка в файле: " + path.getFileName(), exception);
+            throw new ManagerIOException("Ошибка в файле: " + path.getFileName(), exception);
         } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
             System.err.println("В строке: " + line + " - недостаточно данных " + e);
         }
@@ -204,12 +219,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                     break;
 
                 case SUBTASK:
-                    subTasks.put(id, (SubTask) task);
+                    subtasks.put(id, (Subtask) task);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + type);
             }
         }
+        prioritizedTaskList.addAll(tasks.values());
+        prioritizedTaskList.addAll(subtasks.values());
     }
 
     public String toStringInFile(Task task) {
@@ -219,6 +236,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 ',' + task.getStatus() +
                 ',' + task.getDescription() +
                 ',' + task.getEpicId() +
+                ',' + task.getStartTime() +
+                ',' + task.getDuration() +
                 ',';
     }
 
@@ -235,6 +254,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             Status status = Status.valueOf(array[3]);
             String description = array[4];
             Integer epicId;
+            LocalDateTime startTime = LocalDateTime.parse(array[6]);
+            Duration duration = Duration.parse(array[7]);
 
             if (array[5].equals("null")) {
                 epicId = null;
@@ -244,15 +265,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
             switch (type) {
                 case TASK:
-                    task = new Task(id, name, status, description);
+                    task = new Task(id, name, status, description, duration, startTime);
                     break;
 
                 case EPIC:
-                    task = new Epic(id, name, status, description);
+                    task = new Epic(id, name, status, description, duration, startTime);
                     break;
 
                 case SUBTASK:
-                    task = new SubTask(id, name, status, description, epicId);
+                    task = new Subtask(id, name, status, description, epicId, duration, startTime);
                     break;
 
                 default:
