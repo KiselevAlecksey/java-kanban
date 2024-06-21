@@ -15,7 +15,7 @@ class EpicTest {
 
     Epic epic;
     Epic epicDifferent;
-    SubTask subTask;
+    Subtask subTask;
     TaskManager taskManager = Managers.getDefault();
     int subTaskCount = 0;
 
@@ -23,7 +23,7 @@ class EpicTest {
     void init() {
         epic = taskManager.createEpic(new Epic("name", "description", Status.NEW));
         epicDifferent = taskManager.createEpic(new Epic("name", "description", Status.NEW));
-        subTask = taskManager.createSubTask(new SubTask("подзадача",
+        subTask = taskManager.createSubtask(new Subtask("подзадача",
                 "описание", Status.DONE, epic.getId()));
     }
 
