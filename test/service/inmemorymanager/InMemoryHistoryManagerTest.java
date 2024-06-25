@@ -41,7 +41,6 @@ class InMemoryHistoryManagerTest {
         endId = 0;
     }
 
-
     @Test
     @DisplayName("должен быть не пустым")
     void shouldAddCorrectTasks() {
@@ -76,7 +75,7 @@ class InMemoryHistoryManagerTest {
         assertEquals(list.size(), uniqueTasks.size(), "длина не совпадает");
     }
 
-    private static void assertEqualsTask(Task expected, Task actual, String message) {
+    public void assertEqualsTask(Task expected, Task actual, String message) {
         assertEquals(expected.getId(), actual.getId(), message + ", id");
         assertEquals(expected.getName(), actual.getName(), message + ", name");
         assertEquals(expected.getDescription(), actual.getDescription(), message + ", description");

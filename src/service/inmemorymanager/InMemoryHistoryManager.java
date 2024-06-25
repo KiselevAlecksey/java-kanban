@@ -1,5 +1,6 @@
 package service.inmemorymanager;
 
+import exception.NotFoundException;
 import model.Node;
 import model.Task;
 import service.HistoryManager;

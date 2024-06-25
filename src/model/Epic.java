@@ -1,5 +1,7 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,8 +13,9 @@ public class Epic extends Task {
 
     }
 
-    public Epic(Integer taskId, String taskName, Status status, String description) {
-        super(taskId, taskName, status, description);
+    public Epic(Integer taskId, String taskName, Status status,
+                String description, Duration duration, LocalDateTime startTime) {
+        super(taskId, taskName, status, description, duration, startTime);
     }
 
     public List<Integer> getSubTasksId() {
