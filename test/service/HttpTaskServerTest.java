@@ -350,7 +350,7 @@ public class HttpTaskServerTest {
             return client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (InterruptedException | IOException exception) {
             exception.printStackTrace(System.out);
-            throw new ManagerIOException("Подзадача не найдена: ", exception);
+            throw new ManagerIOException("Ошибка ввода/вывода", exception);
         }
     }
 
