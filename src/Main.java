@@ -1,7 +1,7 @@
-import model.Epic;
-import model.Status;
-import model.Subtask;
-import model.Task;
+import model.dto.Epic;
+import model.dto.Subtask;
+import model.dto.Task;
+import model.enums.Status;
 import service.Managers;
 import service.TaskManager;
 import service.infilemanager.FileBackedTaskManager;

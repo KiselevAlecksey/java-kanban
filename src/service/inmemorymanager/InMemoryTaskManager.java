@@ -2,10 +2,10 @@ package service.inmemorymanager;
 
 import exception.IntersectTimeException;
 import exception.NotFoundException;
-import model.Epic;
-import model.Status;
-import model.Subtask;
-import model.Task;
+import model.dto.Epic;
+import model.dto.Subtask;
+import model.dto.Task;
+import model.enums.Status;
 import service.HistoryManager;
 import service.TaskManager;
 
@@ -16,6 +16,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
+
+
     protected int counter = 0;
     protected final Map<Integer, Task> tasks = new HashMap<>();
     protected final Map<Integer, Subtask> subtasks = new HashMap<>();
@@ -47,7 +49,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeTasks() {
 
         tasks.keySet().forEach(id -> historyManager.remove(id));
-
+        tasks.values().forEach(task -> prioritizedTaskList.remove(task));
         tasks.clear();
     }
 
@@ -89,7 +91,9 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeByTaskId(int taskId) {
         int id = getTaskById(taskId).getId();
         tasks.remove(id);
-
+        tasks.values().forEach(task -> {
+            if (task.getId() == id) prioritizedTaskList.remove(task);
+        });
         historyManager.remove(id);
     }
 
@@ -102,7 +106,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeSubtasks() {
 
         subtasks.keySet().forEach(id -> historyManager.remove(id));
-
+        subtasks.values().forEach(task -> prioritizedTaskList.remove(task));
         subtasks.clear();
 
         epics.values().forEach(this::updateEpic);
@@ -156,18 +160,19 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeBySubTaskId(int subtaskId) {
+    public void removeBySubtaskId(int subtaskId) {
         Subtask remoteSubtask = subtasks.remove(subtaskId);
 
         if (remoteSubtask == null) {
             throw new NotFoundException("Подзадача не найдена: " + subtaskId);
+        } else {
+            prioritizedTaskList.remove(remoteSubtask);
         }
 
         int epicId = remoteSubtask.getEpicId();
         Epic epic = getEpicById(epicId);
-        epic.removeIdSubTask(subtaskId); // эта строчка
+        epic.removeIdSubTask(subtaskId);
         updateEpic(epic);
-
         historyManager.remove(subtaskId);
     }
 
@@ -186,6 +191,9 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.keySet().forEach(id -> historyManager.remove(id));
 
         subtasks.clear();
+
+        epics.values().forEach(epic -> prioritizedTaskList.remove(epic));
+        subtasks.values().forEach(subtask -> prioritizedTaskList.remove(subtask));
     }
 
     @Override
@@ -219,6 +227,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic removeByEpicId(int epicId) {
         Epic epic = getEpicById(epicId);
+        prioritizedTaskList.remove(epic);
         List<Subtask> subTasksList = new ArrayList<>(getEpicSubtasks(epic));
 
         subTasksList.forEach(subTask -> {
@@ -226,7 +235,7 @@ public class InMemoryTaskManager implements TaskManager {
                 throw new NotFoundException("Подзадача не найдена у эпика: " + epicId);
             }
             Integer id = subTask.getId();
-            removeBySubTaskId(id);
+            removeBySubtaskId(id);
             subtasks.remove(id);
             historyManager.remove(id);
         });

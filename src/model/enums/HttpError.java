@@ -1,0 +1,8 @@
+package model.enums;
+
+public enum HttpError {
+    HTTP_NOT_FOUND_ERROR,
+    HTTP_INTERSECTION_ERROR,
+    HTTP_BAD_REQUEST_ERROR,
+    HTTP_INTERNAL_SERVER_ERROR
+}

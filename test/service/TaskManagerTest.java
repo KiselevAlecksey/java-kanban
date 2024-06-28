@@ -2,10 +2,10 @@ package service;
 
 import exception.IntersectTimeException;
 import exception.NotFoundException;
-import model.Epic;
-import model.Status;
-import model.Subtask;
-import model.Task;
+import model.dto.Epic;
+import model.dto.Subtask;
+import model.dto.Task;
+import model.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -98,9 +98,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals("Задача не найдена: " + id, thrown.getMessage(), "Задача не удалена.");
 
         id = subtask.getId();
-        taskManager.removeBySubTaskId(subtask.getId());
+        taskManager.removeBySubtaskId(subtask.getId());
         thrown = assertThrows(NotFoundException.class, () -> {
-            taskManager.removeBySubTaskId(subtask.getId());
+            taskManager.removeBySubtaskId(subtask.getId());
         });
         assertEquals("Подзадача не найдена: " + id, thrown.getMessage(), "Задача не удалена.");
 
@@ -227,9 +227,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Task taskNull = null;
         int id = subtask.getId();
 
-        taskManager.removeBySubTaskId(id);
+        taskManager.removeBySubtaskId(id);
         NotFoundException thrown = assertThrows(NotFoundException.class, () -> {
-            taskManager.removeBySubTaskId(id);
+            taskManager.removeBySubtaskId(id);
         });
 
         assertEquals("Подзадача не найдена: " + id, thrown.getMessage(), "Задача не удалена.");

@@ -1,7 +1,11 @@
 package service.infilemanager;
 
 import exception.ManagerIOException;
-import model.*;
+import model.dto.Epic;
+import model.dto.Subtask;
+import model.dto.Task;
+import model.enums.Status;
+import model.enums.TypeTask;
 import service.HistoryManager;
 import service.TaskManager;
 import service.inmemorymanager.InMemoryHistoryManager;
@@ -91,8 +95,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
-    public void removeBySubTaskId(int subtaskId) {
-        super.removeBySubTaskId(subtaskId);
+    public void removeBySubtaskId(int subtaskId) {
+        super.removeBySubtaskId(subtaskId);
         save();
     }
 

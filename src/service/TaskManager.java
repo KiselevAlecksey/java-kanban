@@ -1,8 +1,8 @@
 package service;
 
-import model.Epic;
-import model.Subtask;
-import model.Task;
+import model.dto.Epic;
+import model.dto.Subtask;
+import model.dto.Task;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -32,7 +32,7 @@ public interface TaskManager {
 
     Subtask updateSubtask(Subtask task);
 
-    void removeBySubTaskId(int subtaskId);
+    void removeBySubtaskId(int subtaskId);
 
     List<Epic> getAllEpics();
 
@@ -63,4 +63,5 @@ public interface TaskManager {
     void printEpics();
 
     void printSubtasks();
+
 }

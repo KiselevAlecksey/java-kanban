@@ -1,5 +1,7 @@
 package model;
 
+import model.dto.Task;
+
 public final class Node<T> {
     Task value;
     Node<Task> next;
