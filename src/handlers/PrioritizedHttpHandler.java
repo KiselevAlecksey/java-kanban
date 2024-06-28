@@ -6,8 +6,8 @@ import util.GsonConverter;
 
 import java.io.IOException;
 
-import static model.responsecode.ResponseCode.BAD_REQUEST_ERROR;
 import static model.responsecode.ResponseCode.GET_CODE;
+import static model.responsecode.ResponseCode.METHOD_NOT_ALLOWED;
 
 public class PrioritizedHttpHandler extends BaseHttpHandler {
 
@@ -22,7 +22,7 @@ public class PrioritizedHttpHandler extends BaseHttpHandler {
                 if (exchange.getRequestMethod().equals("GET")) {
                     sendResponse(exchange, GsonConverter.getGson().toJson(taskManager.getPrioritizedTasks()), GET_CODE);
                 } else {
-                    sendResponse(exchange, "Ошибка обработки запроса", BAD_REQUEST_ERROR);
+                    sendResponse(exchange, "Метод нельзя применить к текущему ресурсу", METHOD_NOT_ALLOWED);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);

@@ -8,4 +8,5 @@ public class ResponseCode {
     public static final int NOT_FOUND_ERROR = 404;
     public static final int INTERSECTION_ERROR = 406;
     public static final int BAD_REQUEST_ERROR = 400;
+    public static final int METHOD_NOT_ALLOWED = 405;
 }

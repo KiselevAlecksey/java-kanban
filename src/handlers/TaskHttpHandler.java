@@ -59,7 +59,7 @@ public class TaskHttpHandler extends BaseHttpHandler {
                     }
 
                     case UNKNOWN -> {
-                        sendResponse(exchange, "Неизвестная команда", BAD_REQUEST_ERROR);
+                        sendResponse(exchange, "Метод нельзя применить к текущему ресурсу", METHOD_NOT_ALLOWED);
                     }
 
                     default -> sendResponse(exchange, "Внутренняя ошибка сервера", INTERNAL_SERVER_ERROR);
