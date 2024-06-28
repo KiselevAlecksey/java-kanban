@@ -2,9 +2,11 @@ package service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import exception.NotFoundException;
 import model.dto.Epic;
 import model.dto.Subtask;
 import model.dto.Task;
+import model.enums.Endpoint;
 import model.enums.Status;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static model.enums.Endpoint.*;
 import static model.responsecode.ResponseCode.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -42,6 +45,7 @@ public class HttpTaskServerTest {
     String json;
     HttpRequest request;
     URI url;
+    HttpResponse<String> response;
 
     @BeforeEach
     public void init() {
@@ -63,134 +67,79 @@ public class HttpTaskServerTest {
     @DisplayName("Должен создать задачу")
     @Test
     public void ShouldCreateTask() {
-        Task expectedTask = new Task("Новая задача2", "Описание2", Status.NEW);
+        expectedTask = new Task("Новая задача2", "Описание2", Status.NEW);
         expectedTask.setId(1);
+        json = gson.toJson(expectedTask);
+        HttpResponse<String> response = getResponse(json, "tasks/", POST);
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        assertEquals(POST_CODE, response.statusCode());
 
-            json = gson.toJson(expectedTask);
-            url = URI.create("http://localhost:8080/tasks");
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        Task actual = manager.getTaskById(expectedTask.getId());
+        assertEqualsTask(expectedTask, actual, "задачи не совпадают в менеджере");
 
-            assertEquals(POST_CODE, response.statusCode());
-
-            Task actual = manager.getTaskById(expectedTask.getId());
-            assertEqualsTask(expectedTask, actual, "задачи не совпадают в менеджере");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
     }
 
     @DisplayName("Должен обновить существующую задачу")
     @Test
     public void ShouldUpdateTask() {
-        expectedTask = manager.createTask(new Task("Новая задача", "Описание", Status.NEW));
+        createTasksThroughManager("task");
         Task newTask = new Task("Новая задача2", "Описание2", Status.NEW);
         newTask.setId(1);
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        json = gson.toJson(newTask);
+        HttpResponse<String> response = getResponse(json, "tasks/" + expectedTask.getId(), POST);
 
-            json = gson.toJson(newTask);
-            url = URI.create("http://localhost:8080/tasks/" + expectedTask.getId());
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(POST_CODE, response.statusCode());
 
-            assertEquals(POST_CODE, response.statusCode());
+        Task actual = gson.fromJson(response.body(), Task.class);
+        assertEqualsTask(newTask, actual, "задачи не совпадают");
 
-            Task actual = gson.fromJson(response.body(), Task.class);
-            assertEqualsTask(newTask, actual, "задачи не совпадают");
-
-            actual = manager.getTaskById(expectedTask.getId());
-            assertEqualsTask(newTask, actual, "задачи не совпадают в менеджере");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        actual = manager.getTaskById(expectedTask.getId());
+        assertEqualsTask(newTask, actual, "задачи не совпадают в менеджере");
     }
 
     @DisplayName("Должен вернуть задачу по id")
     @Test
     public void ShouldGetTask() {
-        expectedTask = manager.createTask(new Task("Новая задача", "Описание", Status.NEW));
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        createTasksThroughManager("task");
+        json = gson.toJson(expectedTask);
+        HttpResponse<String> response = getResponse(json, "tasks/" + expectedTask.getId(), GET);
 
-            json = gson.toJson(expectedTask);
-            url = URI.create("http://localhost:8080/tasks/" + expectedTask.getId());
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(GET_CODE, response.statusCode());
 
-            assertEquals(GET_CODE, response.statusCode());
+        Task actual = gson.fromJson(response.body(), Task.class);
+        assertEqualsTask(expectedTask, actual, "задачи не совпадают");
 
-            Task actual = gson.fromJson(response.body(), Task.class);
-            assertEqualsTask(expectedTask, actual, "задачи не совпадают");
+        actual = manager.getTaskById(expectedTask.getId());
+        assertEqualsTask(expectedTask, actual, "задачи не совпадают в менеджере");
 
-            actual = manager.getTaskById(expectedTask.getId());
-            assertEqualsTask(expectedTask, actual, "задачи не совпадают в менеджере");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
     }
 
     @DisplayName("Должен вернуть все задачи")
     @Test
     public void ShouldGetAllTasks() {
-        expectedTask = manager.createTask(new Task("Новая задача", "Описание", Status.NEW));
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        createTasksThroughManager("task");
+        json = gson.toJson(manager.getAllTasks());
+        HttpResponse<String> response = getResponse(json, "tasks/", GET);
 
-            json = gson.toJson(manager.getAllTasks());
-            url = URI.create("http://localhost:8080/tasks/");
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(GET_CODE, response.statusCode());
 
-            assertEquals(GET_CODE, response.statusCode());
+        List<Task> tasks = gson.fromJson(response.body(), new TypeToken<ArrayList<Task>>() {
+        }.getType());
 
-            List<Task> tasks = gson.fromJson(response.body(), new TypeToken<ArrayList<Task>>() {
-            }.getType());
-
-            assertNotNull(tasks);
-            assertEquals(manager.getAllTasks().size(), tasks.size(), "Размер списка задач должен совпадать");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        assertNotNull(tasks);
+        assertEquals(manager.getAllTasks().size(), tasks.size(), "Размер списка задач должен совпадать");
     }
 
     @DisplayName("Должен удалить задачу")
     @Test
     public void ShouldDeleteTask() {
-        expectedTask = manager.createTask(new Task("Новая задача", "Описание", Status.NEW));
+        createTasksThroughManager("task");
+        json = gson.toJson(expectedTask);
+        HttpResponse<String> response = getResponse(json, "tasks/" + expectedTask.getId(), DELETE);
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        assertEquals(DELETE_CODE, response.statusCode());
 
-            json = gson.toJson(expectedTask);
-            url = URI.create("http://localhost:8080/tasks/" + expectedTask.getId());
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .DELETE()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            assertEquals(DELETE_CODE, response.statusCode());
-
-            assertEquals(0, manager.getAllTasks().size(), "Размер списка задач должен совпадать");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        assertEquals(0, manager.getAllTasks().size(), "Размер списка задач должен совпадать");
     }
 
     @DisplayName("Должен создать подзадачу")
@@ -199,146 +148,75 @@ public class HttpTaskServerTest {
         expectedEpic = manager.createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
         Subtask newSubtask = new Subtask("Новая подзадача2", "Описание2", Status.NEW, expectedEpic.getId());
         newSubtask.setId(2);
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        json = gson.toJson(newSubtask);
+        HttpResponse<String> response = getResponse(json, "subtasks/", POST);
 
-            json = gson.toJson(newSubtask);
-            url = URI.create("http://localhost:8080/subtasks");
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(POST_CODE, response.statusCode());
 
-            assertEquals(POST_CODE, response.statusCode());
-
-            Subtask actual = manager.getSubtaskById(newSubtask.getId());
-            assertEqualsTask(newSubtask, actual, "подзадачи не совпадают в менеджере");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        Subtask actual = manager.getSubtaskById(newSubtask.getId());
+        assertEqualsTask(newSubtask, actual, "подзадачи не совпадают в менеджере");
     }
 
     @DisplayName("Должен обновить существующую подзадачу")
     @Test
     public void ShouldUpdateSubtask() {
-        expectedEpic = manager
-                .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
-        expectedSubtask = manager
-                .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
+        createTasksThroughManager("subtask");
         Subtask newSubtask = new Subtask("Новая подзадача2", "Описание2", Status.NEW, expectedEpic.getId());
         newSubtask.setId(2);
+        json = gson.toJson(newSubtask);
+        HttpResponse<String> response = getResponse(json, "subtasks/" + expectedSubtask.getId(), POST);
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        assertEquals(POST_CODE, response.statusCode());
 
-            json = gson.toJson(newSubtask);
-            url = URI.create("http://localhost:8080/subtasks/" + expectedSubtask.getId());
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        Subtask actual = gson.fromJson(response.body(), Subtask.class);
+        assertEqualsTask(newSubtask, actual, "подзадачи не совпадают");
 
-            assertEquals(POST_CODE, response.statusCode());
-
-            Subtask actual = gson.fromJson(response.body(), Subtask.class);
-            assertEqualsTask(newSubtask, actual, "подзадачи не совпадают");
-
-            actual = manager.getSubtaskById(expectedSubtask.getId());
-            assertEqualsTask(newSubtask, actual, "подзадачи не совпадают в менеджере");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        actual = manager.getSubtaskById(expectedSubtask.getId());
+        assertEqualsTask(newSubtask, actual, "подзадачи не совпадают в менеджере");
     }
 
     @DisplayName("Должен вернуть подзадачу по id")
     @Test
     public void ShouldGetSubtask() {
-        expectedEpic = manager
-                .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
-        expectedSubtask = manager
-                .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
+        createTasksThroughManager("subtask");
+        json = gson.toJson(expectedSubtask);
+        HttpResponse<String> response = getResponse(json, "subtasks/" + expectedSubtask.getId(), GET);
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        assertEquals(GET_CODE, response.statusCode());
 
-            json = gson.toJson(expectedSubtask);
-            url = URI.create("http://localhost:8080/subtasks/" + expectedSubtask.getId());
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        Subtask actual = gson.fromJson(response.body(), Subtask.class);
+        assertEqualsTask(expectedSubtask, actual, "подзадачи не совпадают");
 
-            assertEquals(GET_CODE, response.statusCode());
-
-            Subtask actual = gson.fromJson(response.body(), Subtask.class);
-            assertEqualsTask(expectedSubtask, actual, "подзадачи не совпадают");
-
-            actual = manager.getSubtaskById(expectedSubtask.getId());
-            assertEqualsTask(expectedSubtask, actual, "подзадачи не совпадают в менеджере");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        actual = manager.getSubtaskById(expectedSubtask.getId());
+        assertEqualsTask(expectedSubtask, actual, "подзадачи не совпадают в менеджере");
     }
 
     @DisplayName("Должен вернуть все подзадачи")
     @Test
     public void ShouldGetAllSubtasks() {
-        expectedEpic = manager
-                .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
-        expectedSubtask = manager
-                .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
+        createTasksThroughManager("subtask");
+        json = gson.toJson(manager.getAllSubtasks());
+        HttpResponse<String> response = getResponse(json, "subtasks/", GET);
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        assertEquals(GET_CODE, response.statusCode());
 
-            json = gson.toJson(manager.getAllSubtasks());
-            url = URI.create("http://localhost:8080/subtasks/");
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        List<Subtask> subtasks = gson.fromJson(response.body(), new TypeToken<ArrayList<Subtask>>() {
+        }.getType());
 
-            assertEquals(GET_CODE, response.statusCode());
-
-            List<Subtask> subtasks = gson.fromJson(response.body(), new TypeToken<ArrayList<Subtask>>() {
-            }.getType());
-
-            assertNotNull(subtasks);
-            assertEquals(manager.getAllSubtasks().size(), subtasks.size(), "Размер списка подзадач должен совпадать");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        assertNotNull(subtasks);
+        assertEquals(manager.getAllSubtasks().size(), subtasks.size(), "Размер списка подзадач должен совпадать");
     }
 
     @DisplayName("Должен удалить подзадачу")
     @Test
     public void ShouldDeleteSubtask() {
-        expectedEpic = manager
-                .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
-        expectedSubtask = manager
-                .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
+        createTasksThroughManager("subtask");
+        json = gson.toJson(expectedSubtask);
+        HttpResponse<String> response = getResponse(json, "subtasks/" + expectedSubtask.getId(), DELETE);
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        assertEquals(DELETE_CODE, response.statusCode());
 
-            json = gson.toJson(expectedSubtask);
-            url = URI.create("http://localhost:8080/subtasks/" + expectedSubtask.getId());
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .DELETE()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            assertEquals(DELETE_CODE, response.statusCode());
-
-            assertEquals(0, manager.getAllSubtasks().size(), "Размер списка подзадач должен совпадать");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        assertEquals(0, manager.getAllSubtasks().size(), "Размер списка подзадач должен совпадать");
     }
 
     @DisplayName("Должен создать эпик")
@@ -346,210 +224,105 @@ public class HttpTaskServerTest {
     public void ShouldCreateEpic() {
         Epic expectedEpic = new Epic("Новый эпик2", "Описание2", Status.NEW);
         expectedEpic.setId(1);
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        json = gson.toJson(expectedEpic);
+        HttpResponse<String> response = getResponse(json, "epics/", POST);
 
-            json = gson.toJson(expectedEpic);
-            url = URI.create("http://localhost:8080/epics");
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(POST_CODE, response.statusCode());
 
-            assertEquals(POST_CODE, response.statusCode());
-
-            Epic actual = manager.getEpicById(expectedEpic.getId());
-            assertEqualsTask(expectedEpic, actual, "эпики не совпадают в менеджере");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        Epic actual = manager.getEpicById(expectedEpic.getId());
+        assertEqualsTask(expectedEpic, actual, "эпики не совпадают в менеджере");
     }
 
     @DisplayName("Должен вернуть эпик по id")
     @Test
     public void ShouldGetEpic() {
-        expectedEpic = manager
-                .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
-        expectedSubtask = manager
-                .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
+        createTasksThroughManager("epic");
+        json = gson.toJson(expectedEpic);
+        HttpResponse<String> response = getResponse(json, "epics/" + expectedEpic.getId(), GET);
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        assertEquals(GET_CODE, response.statusCode());
 
-            json = gson.toJson(expectedEpic);
-            url = URI.create("http://localhost:8080/epics/" + expectedEpic.getId());
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        Epic actual = gson.fromJson(response.body(), Epic.class);
+        assertEqualsTask(expectedEpic, actual, "эпики не совпадают");
 
-            assertEquals(GET_CODE, response.statusCode());
-
-            Epic actual = gson.fromJson(response.body(), Epic.class);
-            assertEqualsTask(expectedEpic, actual, "эпики не совпадают");
-
-            actual = manager.getEpicById(expectedEpic.getId());
-            assertEqualsTask(expectedEpic, actual, "эпики не совпадают в менеджере");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        actual = manager.getEpicById(expectedEpic.getId());
+        assertEqualsTask(expectedEpic, actual, "эпики не совпадают в менеджере");
     }
 
     @DisplayName("Должен вернуть все эпики")
     @Test
     public void ShouldGetAllEpics() {
-        expectedEpic = manager
-                .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
-        expectedSubtask = manager
-                .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
+        createTasksThroughManager("epic");
+        json = gson.toJson(manager.getAllEpics());
+        HttpResponse<String> response = getResponse(json, "epics/", GET);
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        assertEquals(GET_CODE, response.statusCode());
 
-            json = gson.toJson(manager.getAllEpics());
-            url = URI.create("http://localhost:8080/epics/");
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        List<Epic> epics = gson.fromJson(response.body(), new TypeToken<ArrayList<Epic>>() {
+        }.getType());
 
-            assertEquals(GET_CODE, response.statusCode());
-
-            List<Epic> epics = gson.fromJson(response.body(), new TypeToken<ArrayList<Epic>>() {
-            }.getType());
-
-            assertNotNull(epics);
-            assertEquals(manager.getAllEpics().size(), epics.size(), "Размер списка эпиков должен совпадать");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        assertNotNull(epics);
+        assertEquals(manager.getAllEpics().size(), epics.size(), "Размер списка эпиков должен совпадать");
     }
 
     @DisplayName("Должен вернуть все подзадачи эпика")
     @Test
     public void ShouldGetAllSubtasksEpic() {
-        expectedEpic = manager
-                .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
-        expectedSubtask = manager
-                .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
+        createTasksThroughManager("epic");
+        json = gson.toJson(manager.getEpicSubtasks(expectedEpic));
+        HttpResponse<String> response = getResponse(json, "epics/" + expectedEpic.getId() + "/subtasks", GET);
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        assertEquals(GET_CODE, response.statusCode());
 
-            json = gson.toJson(manager.getEpicSubtasks(expectedEpic));
-            url = URI.create("http://localhost:8080/epics/");
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        List<Subtask> subtasks = gson.fromJson(response.body(), new TypeToken<ArrayList<Subtask>>() {
+        }.getType());
 
-            assertEquals(GET_CODE, response.statusCode());
-
-            List<Subtask> subtasks = gson.fromJson(response.body(), new TypeToken<ArrayList<Subtask>>() {
-            }.getType());
-
-            assertNotNull(subtasks);
-            assertEquals(manager
-                    .getEpicSubtasks(expectedEpic).size(), subtasks.size(), "Размер списка подзадач должен совпадать");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        assertNotNull(subtasks);
+        assertEquals(manager
+                .getEpicSubtasks(expectedEpic).size(), subtasks.size(), "Размер списка подзадач должен совпадать");
     }
 
     @DisplayName("Должен удалить эпик")
     @Test
     public void ShouldDeleteEpic() {
-        expectedEpic = manager
-                .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
-        expectedSubtask = manager
-                .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
+        createTasksThroughManager("epic");
+        json = gson.toJson(expectedEpic);
+        HttpResponse<String> response = getResponse(json, "epics/" + expectedEpic.getId(), DELETE);
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
-
-            json = gson.toJson(expectedEpic);
-            url = URI.create("http://localhost:8080/epics/" + expectedEpic.getId());
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .DELETE()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            assertEquals(DELETE_CODE, response.statusCode());
-
-            assertEquals(0, manager.getAllEpics().size(), "Размер списка подзадач должен совпадать");
-            assertEquals(0, manager.getEpicSubtasks(expectedEpic).size(), "Размер списка подзадач должен совпадать");
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        assertEquals(DELETE_CODE, response.statusCode());
+        assertEquals(0, manager.getAllEpics().size(), "Размер списка подзадач должен совпадать");
+        assertEquals(0, manager.getEpicSubtasks(expectedEpic).size(), "Размер списка подзадач должен совпадать");
     }
 
     @DisplayName("Должен вернуть историю задач")
     @Test
     public void ShouldGetHistory() {
-        expectedEpic = manager
-                .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
-        expectedSubtask = manager
-                .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
-        expectedTask = manager
-                .createTask(new Task(2, "Новая задача", Status.NEW, "Описание", duration, localDateTime));
+        createTasksThroughManager("all");
         manager.getTaskById(expectedTask.getId());
         manager.getSubtaskById(expectedSubtask.getId());
         manager.getEpicById(expectedEpic.getId());
+        HttpResponse<String> response = getResponse(json, "history/", GET);
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        assertEquals(GET_CODE, response.statusCode());
 
-            url = URI.create("http://localhost:8080/history/");
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        List<Task> history = manager.getHistory();
 
-            assertEquals(GET_CODE, response.statusCode());
-
-            List<Task> history = manager.getHistory();
-
-            assertNotNull(history);
-            assertEquals(history.size(), 3, "Размер истории задач должен совпадать");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        assertNotNull(history);
+        assertEquals(history.size(), 3, "Размер истории задач должен совпадать");
     }
 
     @DisplayName("Должен вернуть список приоритетных задач")
     @Test
     public void ShouldGetPrioritizedTasks() {
-        expectedEpic = manager
-                .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
-        expectedSubtask = manager
-                .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
-        expectedTask = manager
-                .createTask(new Task(2, "Новая задача", Status.NEW, "Описание", duration, localDateTime));
+        createTasksThroughManager("all");
+        HttpResponse<String> response = getResponse(json, "prioritized/", GET);
 
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        assertEquals(GET_CODE, response.statusCode());
 
-            url = URI.create("http://localhost:8080/prioritized/");
-            request = HttpRequest.newBuilder()
-                    .uri(url)
-                    .GET()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        List<Task> prioritizedList = manager.getPrioritizedTasks();
 
-            assertEquals(GET_CODE, response.statusCode());
-
-            List<Task> prioritizedList = manager.getPrioritizedTasks();
-
-            assertNotNull(prioritizedList);
-            assertEquals(prioritizedList.size(), 2, "Размер списка приоритетных задач должен совпадать");
-
-        } catch (InterruptedException | IOException exception) {
-            exception.printStackTrace(System.out);
-        }
+        assertNotNull(prioritizedList);
+        assertEquals(prioritizedList.size(), 2, "Размер списка приоритетных задач должен совпадать");
     }
 
     private void assertEqualsTask(Task expected, Task actual, String message) {
@@ -559,5 +332,45 @@ public class HttpTaskServerTest {
         assertEquals(expected.getDescription(), actual.getDescription(), message + ", description");
         assertEquals(expected.getStatus(), actual.getStatus(), message + ", status");
         assertEquals(expected.getStartTime(), actual.getStartTime(), message + ", startTime");
+    }
+
+    private HttpResponse<String> getResponse(String requestBody, String path, Endpoint method) {
+
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            url = URI.create("http://localhost:8080/" + path);
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder().uri(url);
+
+            switch (method) {
+                case GET -> requestBuilder.GET();
+                case POST -> requestBuilder.POST(HttpRequest.BodyPublishers.ofString(requestBody));
+                case DELETE -> requestBuilder.DELETE();
+                default -> throw new NotFoundException("Unsupported method type: " + method);
+            }
+
+            HttpRequest request = requestBuilder.build();
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (InterruptedException | IOException exception) {
+            exception.printStackTrace(System.out);
+        }
+        return response;
+    }
+
+    private void createTasksThroughManager(String taskName) {
+
+        if (taskName.equals("task")) {
+            expectedTask = manager.createTask(new Task("Новая задача", "Описание", Status.NEW));
+        } else if (taskName.equals("subtask") || taskName.equals("epic")) {
+            expectedEpic = manager
+                    .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
+            expectedSubtask = manager
+                    .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
+        } else if (taskName.equals("all")) {
+            expectedEpic = manager
+                    .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
+            expectedSubtask = manager
+                    .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
+            expectedTask = manager
+                    .createTask(new Task(2, "Новая задача", Status.NEW, "Описание", duration, localDateTime));
+        }
     }
 }

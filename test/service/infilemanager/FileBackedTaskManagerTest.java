@@ -24,7 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@DisplayName("менеджер задач из файла")
+@DisplayName("Менеджер задач из файла")
 public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     TaskManager taskManager;

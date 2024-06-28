@@ -53,7 +53,6 @@ public class Main {
             }
         }
 
-
         preEpic = taskManager.createEpic(new Epic("Новый эпик" + 0,
                 "Описание" + 0, Status.NEW));
 
@@ -148,6 +147,5 @@ public class Main {
         taskManager.getSubtaskById(subTaskSave3.getId());
 
         taskManager.printHistory();
-
     }
 }
