@@ -2,6 +2,7 @@ package service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import exception.ManagerIOException;
 import exception.NotFoundException;
 import model.dto.Epic;
 import model.dto.Subtask;
@@ -44,7 +45,6 @@ public class HttpTaskServerTest {
     Subtask expectedSubtask;
     String json;
     URI url;
-    HttpResponse<String> response;
 
     @BeforeEach
     public void init() {
@@ -347,11 +347,11 @@ public class HttpTaskServerTest {
             }
 
             HttpRequest request = requestBuilder.build();
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (InterruptedException | IOException exception) {
             exception.printStackTrace(System.out);
+            throw new ManagerIOException("Подзадача не найдена: ", exception);
         }
-        return response;
     }
 
     private void createTasksThroughManager(String taskName) {
