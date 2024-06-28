@@ -43,7 +43,6 @@ public class HttpTaskServerTest {
     Epic expectedEpic;
     Subtask expectedSubtask;
     String json;
-    HttpRequest request;
     URI url;
     HttpResponse<String> response;
 
@@ -357,20 +356,22 @@ public class HttpTaskServerTest {
 
     private void createTasksThroughManager(String taskName) {
 
-        if (taskName.equals("task")) {
-            expectedTask = manager.createTask(new Task("Новая задача", "Описание", Status.NEW));
-        } else if (taskName.equals("subtask") || taskName.equals("epic")) {
-            expectedEpic = manager
-                    .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
-            expectedSubtask = manager
-                    .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
-        } else if (taskName.equals("all")) {
-            expectedEpic = manager
-                    .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
-            expectedSubtask = manager
-                    .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
-            expectedTask = manager
-                    .createTask(new Task(2, "Новая задача", Status.NEW, "Описание", duration, localDateTime));
+        switch (taskName) {
+            case "task" -> expectedTask = manager.createTask(new Task("Новая задача", "Описание", Status.NEW));
+            case "subtask", "epic" -> {
+                expectedEpic = manager
+                        .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
+                expectedSubtask = manager
+                        .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
+            }
+            case "all" -> {
+                expectedEpic = manager
+                        .createEpic(new Epic("Новый эпик", "Описание", Status.NEW));
+                expectedSubtask = manager
+                        .createSubtask(new Subtask("Новая подзадача", "Описание", Status.NEW, expectedEpic.getId()));
+                expectedTask = manager
+                        .createTask(new Task(2, "Новая задача", Status.NEW, "Описание", duration, localDateTime));
+            }
         }
     }
 }
