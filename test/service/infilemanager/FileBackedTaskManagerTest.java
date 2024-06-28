@@ -12,7 +12,6 @@ import service.TaskManager;
 import service.TaskManagerTest;
 import service.inmemorymanager.InMemoryHistoryManager;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -28,9 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     TaskManager taskManager;
-    private Task actual;
-    private String message;
-    BufferedReader reader;
     File file;
     List<Task> emptyList;
     LocalDateTime localDateTime;
