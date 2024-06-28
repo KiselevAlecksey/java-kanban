@@ -341,8 +341,6 @@ public class HttpTaskServerTest {
         }
     }
 
-    //
-
     @DisplayName("Должен создать эпик")
     @Test
     public void ShouldCreateEpic() {
@@ -367,7 +365,6 @@ public class HttpTaskServerTest {
             exception.printStackTrace(System.out);
         }
     }
-
 
     @DisplayName("Должен вернуть эпик по id")
     @Test
@@ -455,7 +452,8 @@ public class HttpTaskServerTest {
             }.getType());
 
             assertNotNull(subtasks);
-            assertEquals(manager.getEpicSubtasks(expectedEpic).size(), subtasks.size(), "Размер списка подзадач должен совпадать");
+            assertEquals(manager
+                    .getEpicSubtasks(expectedEpic).size(), subtasks.size(), "Размер списка подзадач должен совпадать");
 
         } catch (InterruptedException | IOException exception) {
             exception.printStackTrace(System.out);
