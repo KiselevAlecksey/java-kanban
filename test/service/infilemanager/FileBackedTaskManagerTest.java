@@ -51,10 +51,8 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         super.init();
         localDateTime = LocalDateTime.of(2024, 1, 14, 10, 0);
         duration = Duration.ofMinutes(15);
-
         taskManager = createTaskManager();
         emptyList = new ArrayList<>();
-
     }
 
     @Test

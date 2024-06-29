@@ -34,9 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DisplayName("Сервер менеджера задач")
 public class HttpTaskServerTest {
-    HistoryManager historyManager = Managers.getDefaultHistory();
-    TaskManager manager;
-    HttpTaskServer server;
+    final HistoryManager historyManager = Managers.getDefaultHistory();
+    final TaskManager manager = new InMemoryTaskManager(historyManager);
+    final HttpTaskServer server = new HttpTaskServer(manager);
     Gson gson = GsonConverter.getGson();
     LocalDateTime localDateTime;
     Duration duration;
@@ -48,12 +48,7 @@ public class HttpTaskServerTest {
 
     @BeforeEach
     public void init() {
-        historyManager = Managers.getDefaultHistory();
-        manager = new InMemoryTaskManager(historyManager);
-        server = new HttpTaskServer(manager);
         server.run();
-        url = URI.create("http://localhost:8080/");
-
         localDateTime = LocalDateTime.of(2024, 1, 14, 10, 0);
         duration = Duration.ofMinutes(15);
     }
@@ -75,7 +70,6 @@ public class HttpTaskServerTest {
 
         Task actual = manager.getTaskById(expectedTask.getId());
         assertEqualsTask(expectedTask, actual, "задачи не совпадают в менеджере");
-
     }
 
     @DisplayName("Должен обновить существующую задачу")
