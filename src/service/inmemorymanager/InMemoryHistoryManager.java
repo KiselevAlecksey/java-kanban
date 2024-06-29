@@ -2,7 +2,7 @@ package service.inmemorymanager;
 
 import exception.NotFoundException;
 import model.Node;
-import model.Task;
+import model.dto.Task;
 import service.HistoryManager;
 
 import java.util.ArrayList;

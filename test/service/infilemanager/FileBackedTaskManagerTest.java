@@ -1,10 +1,10 @@
 package service.infilemanager;
 
 import exception.ManagerIOException;
-import model.Epic;
-import model.Status;
-import model.Subtask;
-import model.Task;
+import model.dto.Epic;
+import model.dto.Subtask;
+import model.dto.Task;
+import model.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,6 @@ import service.TaskManager;
 import service.TaskManagerTest;
 import service.inmemorymanager.InMemoryHistoryManager;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -24,13 +23,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@DisplayName("менеджер задач из файла")
+@DisplayName("Менеджер задач из файла")
 public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     TaskManager taskManager;
-    private Task actual;
-    private String message;
-    BufferedReader reader;
     File file;
     List<Task> emptyList;
     LocalDateTime localDateTime;
@@ -55,10 +51,8 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         super.init();
         localDateTime = LocalDateTime.of(2024, 1, 14, 10, 0);
         duration = Duration.ofMinutes(15);
-
         taskManager = createTaskManager();
         emptyList = new ArrayList<>();
-
     }
 
     @Test

@@ -1,7 +1,7 @@
-import model.Epic;
-import model.Status;
-import model.Subtask;
-import model.Task;
+import model.dto.Epic;
+import model.dto.Subtask;
+import model.dto.Task;
+import model.enums.Status;
 import service.Managers;
 import service.TaskManager;
 import service.infilemanager.FileBackedTaskManager;
@@ -32,7 +32,6 @@ public class Main {
                 taskManager.getTaskById(taskManagerTask.getId()).setStartTime(LocalDateTime.of(2024,
                         6, 13, 10 + i, 0));
                 taskManager.getTaskById(taskManagerTask.getId()).setDuration(Duration.ofMinutes(15));
-
             }
         }
 
@@ -53,7 +52,6 @@ public class Main {
 
             }
         }
-
 
         preEpic = taskManager.createEpic(new Epic("Новый эпик" + 0,
                 "Описание" + 0, Status.NEW));
@@ -149,6 +147,5 @@ public class Main {
         taskManager.getSubtaskById(subTaskSave3.getId());
 
         taskManager.printHistory();
-
     }
 }

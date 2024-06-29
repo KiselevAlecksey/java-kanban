@@ -1,7 +1,11 @@
-package model;
+package model.dto;
+
+import model.enums.Status;
+import model.enums.TypeTask;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class Task {
     private String name;
@@ -17,7 +21,7 @@ public class Task {
         this.name = taskName;
         this.description = description;
         this.status = status;
-        this.startTime = LocalDateTime.now();
+        this.startTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         this.duration = Duration.ofMinutes(15);
         this.endTime = startTime.plus(duration);
     }

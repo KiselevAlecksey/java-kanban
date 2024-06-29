@@ -1,4 +1,7 @@
-package model;
+package model.dto;
+
+import model.enums.Status;
+import model.enums.TypeTask;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

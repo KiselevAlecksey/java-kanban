@@ -1,5 +1,8 @@
 package model;
 
+import model.dto.Epic;
+import model.dto.Subtask;
+import model.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
